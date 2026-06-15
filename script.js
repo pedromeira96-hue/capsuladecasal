@@ -10,8 +10,13 @@ async function carregarCapsula() {
 
     console.log("Última linha:", ultimaLinha);
 
+    document.getElementById("titulo").innerText = "CSV carregado com sucesso";
+
   } catch (erro) {
     console.error("Erro:", erro);
+
+    document.getElementById("titulo").innerText =
+      "Erro ao carregar dados";
   }
 }
 
