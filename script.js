@@ -10,49 +10,46 @@ async function carregarCapsula() {
 
     const inicio = texto.lastIndexOf('{"modo"');
     const fim = texto.lastIndexOf("}");
+    const dados = JSON.parse(texto.slice(inicio, fim + 1));
 
-    const jsonTexto = texto.slice(inicio, fim + 1);
-    const dados = JSON.parse(jsonTexto);
-
-    const nomes = dados.metadata?.nomes || ["Pedro", "Ariana"];
+    const nomes = dados.metadata?.nomes || ["Casal", "Especial"];
     const secoes = dados.secoes || {};
     const categorias = secoes.categorias || {};
 
-    document.getElementById("titulo").innerText =
-      `${nomes[0]} ❤️ ${nomes[1]}`;
+    const episodios = [
+      ...(categorias.estreia || []),
+      ...(categorias.temporada_atual || []),
+      ...(categorias.episodios_inesqueciveis || []),
+      ...(categorias.em_breve || [])
+    ];
 
-    document.getElementById("modo").innerText = dados.modo || "-";
-    document.getElementById("ocasiao").innerText = dados.ocasiao || "-";
-    document.getElementById("anos").innerText =
-      dados.metadata?.anos_juntos ? `${dados.metadata.anos_juntos} anos` : "-";
+    document.getElementById("titulo").innerText =
+      secoes.hero_banner?.titulo || `${nomes[0]} ❤️ ${nomes[1]}`;
 
     document.getElementById("mensagem").innerText =
-      secoes.hero_banner?.tagline ||
-      secoes.descricao_serie ||
-      "-";
+      secoes.hero_banner?.tagline || secoes.descricao_serie || "";
 
-    const episodios =
-      categorias.episodios_inesqueciveis ||
-      categorias.estreia ||
-      [];
+    document.getElementById("modo").innerText = dados.modo || "netflix";
+    document.getElementById("ocasiao").innerText = dados.ocasiao || "";
+    document.getElementById("anos").innerText =
+      dados.metadata?.anos_juntos ? `${dados.metadata.anos_juntos} anos` : "";
 
     document.getElementById("musica").innerText =
-      episodios[0]?.titulo || "-";
+      categorias.episodios_inesqueciveis?.[0]?.titulo || "Trilha do casal";
 
     const container = document.getElementById("episodios");
     container.innerHTML = "";
 
-    episodios.forEach((episodio) => {
+    episodios.forEach((ep) => {
       container.innerHTML += `
-        <div class="episode-card">
-          <h3>${episodio.titulo || "Episódio especial"}</h3>
-          <p>${episodio.sinopse || ""}</p>
-          <small>${episodio.duracao || ""} ${episodio.avaliacao || ""}</small>
-        </div>
+        <article class="episode-card">
+          <span class="episode-badge">${ep.avaliacao || "★★★★★"}</span>
+          <h3>${ep.titulo || "Episódio especial"}</h3>
+          <p>${ep.sinopse || ""}</p>
+          <small>${ep.duracao || "Em produção"}</small>
+        </article>
       `;
     });
-
-    console.log("Dados carregados:", dados);
 
   } catch (erro) {
     console.error("Erro:", erro);
