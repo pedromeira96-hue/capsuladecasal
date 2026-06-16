@@ -16,11 +16,14 @@ async function carregarCapsula() {
     const secoes = dados.secoes || {};
     const categorias = secoes.categorias || {};
 
+    const estreia = categorias.estreia || [];
+    const temporadaAtual = categorias.temporada_atual || [];
+    const episodiosInesqueciveis = categorias.episodios_inesqueciveis || [];
+    const emBreve = categorias.em_breve || [];
+
     const episodios = [
-      ...(categorias.estreia || []),
-      ...(categorias.temporada_atual || []),
-      ...(categorias.episodios_inesqueciveis || []),
-      ...(categorias.em_breve || [])
+      ...estreia,
+      ...episodiosInesqueciveis
     ];
 
     document.getElementById("titulo").innerText =
@@ -35,7 +38,18 @@ async function carregarCapsula() {
       dados.metadata?.anos_juntos ? `${dados.metadata.anos_juntos} anos` : "";
 
     document.getElementById("musica").innerText =
-      categorias.episodios_inesqueciveis?.[0]?.titulo || "Trilha do casal";
+      episodiosInesqueciveis[0]?.titulo || "Trilha do casal";
+
+    const temporadaBox = document.getElementById("temporadaAtual");
+    const temporada = temporadaAtual[0];
+
+    temporadaBox.innerHTML = temporada
+      ? `
+        <h3>${temporada.titulo || "Temporada atual"}</h3>
+        <p>${temporada.sinopse || ""}</p>
+        <strong>${temporada.avaliacao || ""}</strong>
+      `
+      : "<p>Em produção...</p>";
 
     const container = document.getElementById("episodios");
     container.innerHTML = "";
@@ -50,6 +64,17 @@ async function carregarCapsula() {
         </article>
       `;
     });
+
+    const proximaBox = document.getElementById("proximaTemporada");
+    const proxima = emBreve[0];
+
+    proximaBox.innerHTML = proxima
+      ? `
+        <h3>${proxima.titulo || "Próxima temporada"}</h3>
+        <p>${proxima.sinopse || ""}</p>
+        <strong>${proxima.duracao || "Em produção"}</strong>
+      `
+      : "<p>Novos capítulos em breve...</p>";
 
   } catch (erro) {
     console.error("Erro:", erro);
