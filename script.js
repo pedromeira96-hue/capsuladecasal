@@ -11,41 +11,54 @@ async function carregarCapsula() {
     const inicio = texto.lastIndexOf('{"modo"');
     const fim = texto.lastIndexOf("}");
 
-    if (inicio === -1 || fim === -1) {
-      throw new Error("JSON não encontrado");
-    }
-
     const jsonTexto = texto.slice(inicio, fim + 1);
+
     const dados = JSON.parse(jsonTexto);
 
-    const nomes = dados.metadata?.nomes || ["Casal", "Especial"];
+    const nomes = dados.metadata.nomes;
 
     document.getElementById("titulo").innerText =
       `${nomes[0]} ❤️ ${nomes[1]}`;
 
     document.getElementById("modo").innerText =
-      dados.modo || "-";
+      dados.modo;
 
     document.getElementById("ocasiao").innerText =
-      dados.ocasiao || "-";
+      dados.ocasiao;
 
     document.getElementById("anos").innerText =
-      dados.metadata?.anos_juntos ? `${dados.metadata.anos_juntos} anos` : "-";
+      `${dados.metadata.anos_juntos} anos`;
 
     document.getElementById("musica").innerText =
-      dados.secoes?.categorias?.episodios_inesqueciveis?.[0]?.titulo ||
-      "-";
+      dados.secoes.episodios_inesqueciveis[0].titulo;
 
     document.getElementById("mensagem").innerText =
-      dados.secoes?.hero_banner?.tagline ||
-      dados.secoes?.descricao_serie ||
-      "-";
+      dados.secoes.hero_banner.tagline;
 
-    console.log("Dados carregados:", dados);
+    const container =
+      document.getElementById("episodios");
+
+    container.innerHTML = "";
+
+    dados.secoes.episodios_inesqueciveis.forEach(
+      episodio => {
+
+        container.innerHTML += `
+          <div class="episode-card">
+            <h3>${episodio.titulo}</h3>
+            <p>${episodio.sinopse}</p>
+          </div>
+        `;
+
+      }
+    );
 
   } catch (erro) {
-    console.error("Erro:", erro);
-    document.getElementById("titulo").innerText = "Erro ao carregar cápsula";
+
+    console.error(erro);
+
+    document.getElementById("titulo").innerText =
+      "Erro ao carregar cápsula";
   }
 }
 
