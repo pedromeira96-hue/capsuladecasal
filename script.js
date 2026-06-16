@@ -6,25 +6,22 @@ async function carregarCapsula() {
     const response = await fetch(SHEET_CSV_URL);
     const csv = await response.text();
 
-    const inicioJson = csv.lastIndexOf('{"modo"');
+    let texto = csv.replace(/""/g, '"');
 
-    if (inicioJson === -1) {
-      document.getElementById("titulo").innerText =
-        "JSON não encontrado";
-      return;
+    const inicio = texto.lastIndexOf('{"modo"');
+    const fim = texto.lastIndexOf("}");
+
+    if (inicio === -1 || fim === -1) {
+      throw new Error("JSON não encontrado");
     }
 
-    let jsonTexto = csv.substring(inicioJson);
-
-    jsonTexto = jsonTexto
-      .replace(/""/g, '"')
-      .replace(/^"/, "")
-      .replace(/"$/, "");
-
+    const jsonTexto = texto.slice(inicio, fim + 1);
     const dados = JSON.parse(jsonTexto);
 
+    const nomes = dados.metadata?.nomes || ["Casal", "Especial"];
+
     document.getElementById("titulo").innerText =
-      `${dados.metadata.nomes[0]} ❤️ ${dados.metadata.nomes[1]}`;
+      `${nomes[0]} ❤️ ${nomes[1]}`;
 
     document.getElementById("modo").innerText =
       dados.modo || "-";
@@ -33,21 +30,22 @@ async function carregarCapsula() {
       dados.ocasiao || "-";
 
     document.getElementById("anos").innerText =
-      dados.metadata.anos_juntos || "-";
+      dados.metadata?.anos_juntos ? `${dados.metadata.anos_juntos} anos` : "-";
 
     document.getElementById("musica").innerText =
-      dados.episodios_inesqueciveis?.[0]?.titulo || "-";
+      dados.secoes?.categorias?.episodios_inesqueciveis?.[0]?.titulo ||
+      "-";
 
     document.getElementById("mensagem").innerText =
-      dados.hero_banner?.tagline || "-";
+      dados.secoes?.hero_banner?.tagline ||
+      dados.secoes?.descricao_serie ||
+      "-";
 
-    console.log(dados);
+    console.log("Dados carregados:", dados);
 
   } catch (erro) {
-    console.error(erro);
-
-    document.getElementById("titulo").innerText =
-      "Erro ao interpretar JSON";
+    console.error("Erro:", erro);
+    document.getElementById("titulo").innerText = "Erro ao carregar cápsula";
   }
 }
 
